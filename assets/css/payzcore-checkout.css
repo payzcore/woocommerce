@@ -1,0 +1,529 @@
+/**
+ * PayzCore checkout styles.
+ *
+ * Dark-themed payment instructions card matching PayzCore branding.
+ * Colors: black (#000) background, cyan-500 (#06b6d4) accent,
+ * zinc-950 (#09090b) card surface.
+ *
+ * @package PayzCore
+ */
+
+/* ----------------------------------------------------------------
+   Payment box container
+   ---------------------------------------------------------------- */
+
+.payzcore-payment-box {
+	max-width: 480px;
+	margin: 24px auto;
+	background: #09090b;
+	border: 1px solid rgba(255, 255, 255, 0.07);
+	border-radius: 12px;
+	overflow: hidden;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	color: #e4e4e7;
+}
+
+/* ----------------------------------------------------------------
+   Header
+   ---------------------------------------------------------------- */
+
+.payzcore-payment-header {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 20px 24px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+	background: rgba(6, 182, 212, 0.04);
+}
+
+.payzcore-payment-header-icon {
+	flex-shrink: 0;
+	width: 36px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(6, 182, 212, 0.1);
+	border-radius: 8px;
+	color: #06b6d4;
+}
+
+.payzcore-payment-title {
+	margin: 0 0 2px;
+	font-size: 16px;
+	font-weight: 600;
+	color: #ffffff;
+	line-height: 1.3;
+}
+
+.payzcore-payment-subtitle {
+	margin: 0;
+	font-size: 13px;
+	color: #a1a1aa;
+	line-height: 1.4;
+}
+
+/* ----------------------------------------------------------------
+   Body
+   ---------------------------------------------------------------- */
+
+.payzcore-payment-body {
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+}
+
+/* Labels */
+.payzcore-label {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #71717a;
+	margin-bottom: 6px;
+}
+
+/* ----------------------------------------------------------------
+   Amount section
+   ---------------------------------------------------------------- */
+
+.payzcore-amount-section {
+	text-align: center;
+	width: 100%;
+}
+
+.payzcore-amount-row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+.payzcore-amount {
+	font-size: 32px;
+	font-weight: 700;
+	color: #06b6d4;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.02em;
+}
+
+.payzcore-amount-currency {
+	font-size: 16px;
+	font-weight: 600;
+	color: #a1a1aa;
+	margin-top: 4px;
+}
+
+.payzcore-amount-warning {
+	display: block;
+	margin-top: 4px;
+	font-size: 12px;
+	color: #f59e0b;
+}
+
+/* ----------------------------------------------------------------
+   Network badge
+   ---------------------------------------------------------------- */
+
+.payzcore-network-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 12px;
+	background: rgba(6, 182, 212, 0.1);
+	border: 1px solid rgba(6, 182, 212, 0.2);
+	border-radius: 9999px;
+	font-size: 12px;
+	font-weight: 500;
+	color: #06b6d4;
+}
+
+.payzcore-network-dot {
+	width: 6px;
+	height: 6px;
+	background: #06b6d4;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------------
+   QR code
+   ---------------------------------------------------------------- */
+
+.payzcore-qr-section {
+	padding: 16px;
+	background: #18181b;
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.payzcore-qr-image {
+	display: block;
+	width: 200px;
+	height: 200px;
+	image-rendering: pixelated;
+}
+
+/* ----------------------------------------------------------------
+   Address
+   ---------------------------------------------------------------- */
+
+.payzcore-address-section {
+	width: 100%;
+	text-align: center;
+}
+
+.payzcore-address-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 14px;
+	background: #18181b;
+	border: 1px solid rgba(255, 255, 255, 0.07);
+	border-radius: 8px;
+}
+
+.payzcore-address {
+	flex: 1;
+	font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono",
+		"Courier New", monospace;
+	font-size: 13px;
+	color: #e4e4e7;
+	word-break: break-all;
+	text-align: left;
+	line-height: 1.5;
+	background: none;
+	padding: 0;
+}
+
+/* ----------------------------------------------------------------
+   Copy button
+   ---------------------------------------------------------------- */
+
+.payzcore-copy-btn {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 6px;
+	color: #a1a1aa;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.payzcore-copy-btn:hover {
+	background: rgba(6, 182, 212, 0.1);
+	border-color: rgba(6, 182, 212, 0.3);
+	color: #06b6d4;
+}
+
+.payzcore-copy-btn:active {
+	transform: scale(0.95);
+}
+
+.payzcore-copy-btn.copied {
+	background: rgba(6, 182, 212, 0.15);
+	border-color: rgba(6, 182, 212, 0.4);
+	color: #06b6d4;
+}
+
+/* ----------------------------------------------------------------
+   Countdown timer
+   ---------------------------------------------------------------- */
+
+.payzcore-timer-section {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.07);
+	border-radius: 8px;
+	width: 100%;
+	justify-content: center;
+	color: #a1a1aa;
+}
+
+.payzcore-timer-label {
+	font-size: 13px;
+}
+
+.payzcore-timer {
+	font-size: 14px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	color: #e4e4e7;
+}
+
+.payzcore-timer.warning {
+	color: #f59e0b;
+}
+
+.payzcore-timer.critical {
+	color: #ef4444;
+}
+
+.payzcore-timer.expired {
+	color: #ef4444;
+}
+
+/* ----------------------------------------------------------------
+   Status section (shown during polling)
+   ---------------------------------------------------------------- */
+
+.payzcore-status-section {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	width: 100%;
+	justify-content: center;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.payzcore-status-section.pending {
+	background: rgba(245, 158, 11, 0.08);
+	border: 1px solid rgba(245, 158, 11, 0.2);
+	color: #f59e0b;
+}
+
+.payzcore-status-section.confirming {
+	background: rgba(59, 130, 246, 0.08);
+	border: 1px solid rgba(59, 130, 246, 0.2);
+	color: #3b82f6;
+}
+
+.payzcore-status-section.paid {
+	background: rgba(6, 182, 212, 0.08);
+	border: 1px solid rgba(6, 182, 212, 0.2);
+	color: #06b6d4;
+}
+
+.payzcore-status-section.expired {
+	background: rgba(239, 68, 68, 0.08);
+	border: 1px solid rgba(239, 68, 68, 0.2);
+	color: #ef4444;
+}
+
+.payzcore-status-section.partial {
+	background: rgba(245, 158, 11, 0.08);
+	border: 1px solid rgba(245, 158, 11, 0.2);
+	color: #f59e0b;
+}
+
+.payzcore-status-icon {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.payzcore-status-section.pending .payzcore-status-icon {
+	background: #f59e0b;
+}
+
+.payzcore-status-section.confirming .payzcore-status-icon {
+	background: #3b82f6;
+	animation: payzcore-pulse 1.5s ease-in-out infinite;
+}
+
+.payzcore-status-section.paid .payzcore-status-icon {
+	background: #06b6d4;
+}
+
+.payzcore-status-section.expired .payzcore-status-icon {
+	background: #ef4444;
+}
+
+.payzcore-status-section.partial .payzcore-status-icon {
+	background: #f59e0b;
+	animation: payzcore-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes payzcore-pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.4;
+	}
+}
+
+/* ----------------------------------------------------------------
+   Notice section (static wallet mode)
+   ---------------------------------------------------------------- */
+
+.payzcore-notice-section {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 14px;
+	background: rgba(245, 158, 11, 0.08);
+	border: 1px solid rgba(245, 158, 11, 0.2);
+	border-radius: 8px;
+	width: 100%;
+	font-size: 13px;
+	color: #f59e0b;
+}
+
+/* ----------------------------------------------------------------
+   Transaction hash form (static wallet mode)
+   ---------------------------------------------------------------- */
+
+.payzcore-txid-section {
+	width: 100%;
+}
+
+.payzcore-txid-row {
+	margin-bottom: 10px;
+}
+
+.payzcore-txid-input {
+	width: 100%;
+	padding: 10px 14px;
+	background: #18181b;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	color: #e4e4e7;
+	font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono",
+		"Courier New", monospace;
+	font-size: 13px;
+	outline: none;
+	box-sizing: border-box;
+	transition: border-color 0.15s ease;
+}
+
+.payzcore-txid-input:focus {
+	border-color: rgba(6, 182, 212, 0.5);
+}
+
+.payzcore-txid-input::placeholder {
+	color: #52525b;
+}
+
+.payzcore-txid-input:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.payzcore-txid-submit {
+	width: 100%;
+	padding: 10px 16px;
+	background: #06b6d4;
+	border: none;
+	border-radius: 8px;
+	color: #000000;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.payzcore-txid-submit:hover {
+	background: #22d3ee;
+}
+
+.payzcore-txid-submit:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.payzcore-txid-message {
+	margin-top: 10px;
+	padding: 8px 12px;
+	border-radius: 6px;
+	font-size: 13px;
+	text-align: center;
+}
+
+.payzcore-txid-message.success {
+	background: rgba(6, 182, 212, 0.08);
+	border: 1px solid rgba(6, 182, 212, 0.2);
+	color: #06b6d4;
+}
+
+.payzcore-txid-message.error {
+	background: rgba(239, 68, 68, 0.08);
+	border: 1px solid rgba(239, 68, 68, 0.2);
+	color: #ef4444;
+}
+
+/* ----------------------------------------------------------------
+   Footer (steps)
+   ---------------------------------------------------------------- */
+
+.payzcore-payment-footer {
+	padding: 16px 24px 20px;
+	border-top: 1px solid rgba(255, 255, 255, 0.07);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.payzcore-step {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.payzcore-step-number {
+	flex-shrink: 0;
+	width: 22px;
+	height: 22px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(6, 182, 212, 0.1);
+	color: #06b6d4;
+	font-size: 11px;
+	font-weight: 700;
+	border-radius: 50%;
+}
+
+.payzcore-step-text {
+	font-size: 13px;
+	color: #a1a1aa;
+	line-height: 1.4;
+}
+
+/* ----------------------------------------------------------------
+   Responsive
+   ---------------------------------------------------------------- */
+
+@media (max-width: 520px) {
+	.payzcore-payment-box {
+		margin: 16px 0;
+		border-radius: 8px;
+	}
+
+	.payzcore-payment-header,
+	.payzcore-payment-body,
+	.payzcore-payment-footer {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.payzcore-amount {
+		font-size: 26px;
+	}
+
+	.payzcore-address {
+		font-size: 11px;
+	}
+
+	.payzcore-qr-image {
+		width: 160px;
+		height: 160px;
+	}
+}

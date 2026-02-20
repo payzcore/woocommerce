@@ -1,0 +1,20 @@
+{
+	"name": "payzcore/woocommerce",
+	"description": "PayzCore blockchain transaction monitoring integration for WooCommerce. Accept USDT/USDC stablecoin payments on TRC20, BEP20, ERC20, Polygon, and Arbitrum networks.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"homepage": "https://payzcore.com",
+	"authors": [
+		{
+			"name": "PayzCore",
+			"homepage": "https://payzcore.com"
+		}
+	],
+	"require": {
+		"php": ">=7.4"
+	},
+	"config": {
+		"preferred-install": "dist",
+		"sort-packages": true
+	}
+}
