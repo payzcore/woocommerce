@@ -1,0 +1,614 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR PayzCore
+# This file is distributed under the same license as the PayzCore for WooCommerce package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PayzCore for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: support@payzcore.com\n"
+"POT-Creation-Date: 2026-02-26 02:11+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: payzcore-woocommerce.php:60
+#, php-format
+msgid "%s requires WooCommerce to be installed and active."
+msgstr ""
+
+#: payzcore-woocommerce.php:128
+msgid "Settings"
+msgstr ""
+
+#: includes/class-payzcore-api.php:180
+#, php-format
+msgid "PayzCore API connection failed: %s"
+msgstr ""
+
+#: includes/class-payzcore-api.php:193
+msgid "Invalid response from PayzCore API."
+msgstr ""
+
+#: includes/class-payzcore-api.php:201
+msgid "Unknown API error."
+msgstr ""
+
+#: includes/class-payzcore-webhook.php:184
+#, php-format
+msgid "Payment confirmed. %1$s %2$s received on %3$s. Transaction: %4$s"
+msgstr ""
+
+#: includes/class-payzcore-webhook.php:195
+msgid "Virtual order auto-completed."
+msgstr ""
+
+#: includes/class-payzcore-webhook.php:207
+#, php-format
+msgid ""
+"Overpayment detected. %1$s %2$s received (expected %3$s) on %4$s. "
+"Transaction: %5$s"
+msgstr ""
+
+#: includes/class-payzcore-webhook.php:219
+msgid "Virtual order auto-completed (overpaid)."
+msgstr ""
+
+#: includes/class-payzcore-webhook.php:227
+#, php-format
+msgid ""
+"Partial transfer detected. %1$s of %2$s %3$s received on %4$s. Awaiting "
+"remaining amount."
+msgstr ""
+
+#: includes/class-payzcore-webhook.php:238
+msgid "Payment monitoring window expired. No sufficient transfer detected."
+msgstr ""
+
+#: includes/class-payzcore-webhook.php:248
+msgid "Payment was cancelled by the merchant."
+msgstr ""
+
+#: includes/class-payzcore-webhook.php:261
+#, php-format
+msgid "Received unhandled event: %s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:72
+msgid "PayzCore (Stablecoin)"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:74
+msgid ""
+"Accept USDT/USDC stablecoin payments via PayzCore blockchain transaction "
+"monitoring across multiple networks (TRC20, BEP20, ERC20, Polygon, "
+"Arbitrum). Non-custodial: funds are sent directly to your wallet."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:179
+#, php-format
+msgid ""
+"PayzCore connection failed: %s. Check the API URL and server connectivity."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:190
+msgid ""
+"PayzCore API Key is invalid or the project is inactive. Check your "
+"credentials at app.payzcore.com."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:199
+#, php-format
+msgid "PayzCore API returned HTTP %s. Please try again."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:210
+msgid "PayzCore returned an invalid response."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:225
+msgid ""
+"Connected but no wallet configured in your PayzCore project. Add a wallet at "
+"app.payzcore.com to accept payments."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:234
+#, php-format
+msgid "PayzCore connected! Available: %1$s. Last sync: %2$s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:259
+msgid "Enter your API Key and click Save to connect with PayzCore."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:277
+msgid "Connected"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:280
+#, php-format
+msgid "Available networks: %s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:287
+#, php-format
+msgid "Last synced: %s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:290
+msgid "Save settings to re-sync."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:297
+msgid ""
+"Not synced yet. Click Save to connect and fetch your project configuration "
+"from PayzCore."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:325
+#, php-format
+msgid ""
+"Your store currency is %s. PayzCore stablecoin payments require USD as the "
+"store currency because USDT/USDC are pegged 1:1 to the US Dollar. The "
+"payment method will not appear at checkout until the store currency is set "
+"to USD."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:358
+msgid "Setup Guide"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:370
+msgid "Before you begin:"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:371
+msgid "Create a PayzCore account at"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:372
+msgid ""
+"Create a Project and add a Wallet (HD xPub or static addresses) for the "
+"blockchain network you want to use."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:373
+msgid "Copy your API Key and Webhook Secret from the project settings page."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:374
+msgid "Set your Webhook URL in the PayzCore project to:"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:376
+msgid "Enable the payment method below and save."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:377
+msgid ""
+"You must have a wallet configured for the selected blockchain network in "
+"your PayzCore project. If no wallet is set up, payments will fail at "
+"checkout."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:381
+msgid "Enable/Disable"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:383
+msgid "Enable PayzCore stablecoin payments"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:387
+msgid "Title"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:389
+msgid "Payment method title shown during checkout."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:390
+msgid "Stablecoin (USDT/USDC)"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:394
+msgid "Description"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:396
+msgid "Payment method description shown during checkout."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:397
+msgid ""
+"Pay with USDT or USDC stablecoin. Funds go directly to the merchant wallet."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:401
+msgid "API Key"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:405
+#, php-format
+msgid ""
+"Found in your PayzCore dashboard: %s → Projects → your project → Settings."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:412
+msgid "Connection Status"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:417
+msgid "Webhook Secret"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:421
+#, php-format
+msgid ""
+"Shown once when you create a project (or regenerate keys). Set your Webhook "
+"URL in %2$s to: %1$s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:429
+msgid "API URL"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:431
+msgid "PayzCore API endpoint. Change only if using a self-hosted instance."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:436
+msgid "Payment Expiry (seconds)"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:438
+msgid ""
+"Time in seconds before the payment monitoring expires. Minimum 300 (5 min), "
+"maximum 86400 (24 hr)."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:448
+msgid "Static Wallet Address (Optional)"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:450
+msgid ""
+"If set, all payments will use this fixed address. Customers submit their "
+"transaction hash (TxID) after sending. Leave empty to use HD wallet "
+"addresses derived automatically by PayzCore."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:458
+msgid "Payment Page Texts"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:460
+msgid ""
+"Customize all customer-facing texts. Change these to display your preferred "
+"language on the payment page."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:463
+msgid "Page Title"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:467
+msgid "Main heading on the payment page."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:470
+msgid "Page Subtitle"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:474
+msgid "Subtitle text below the heading."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:477
+msgid "Amount Label"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:483
+msgid "Amount Warning"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:489
+msgid "Address Label"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:495
+msgid "Time Remaining"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:501
+msgid "Step 1 Text"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:507
+msgid "Step 2 Text"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:511
+msgid "Use {amount} and {token} as placeholders."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:514
+msgid "Step 3 Text"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:520
+msgid "Status: Waiting"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:526
+msgid "Status: Confirming"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:532
+msgid "Status: Confirmed"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:538
+msgid "Status: Expired"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:544
+msgid "Status: Partial"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:550
+msgid "Copied Button"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:556
+msgid "Redirecting Text"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:562
+msgid "Transaction Hash Label"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:566
+msgid "Label for the transaction hash input in static wallet mode."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:569
+msgid "Transaction Hash Placeholder"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:575
+msgid "Confirm Button Text"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:581
+msgid "Confirmation Success Text"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:587
+msgid "Invalid Hash Text"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:593
+msgid "Partial Payment Detail"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:599
+msgid "Connection Issue Text"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:618
+msgid ""
+"PayzCore API Key should start with \"pk_\". Please check your credentials."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:641
+msgid "Payment configuration is not available. Please contact the store."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:664
+#: includes/class-wc-gateway-payzcore.php:704
+msgid "Stablecoin"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:692
+msgid "Blockchain Network"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:763
+msgid "Please select a valid blockchain network."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:774
+#, php-format
+msgid ""
+"%1$s is not available on %2$s. Please select a different token or network."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:863
+msgid "Order not found. Please try again."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:870
+msgid "Invalid order amount."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:923
+#, php-format
+msgid "PayzCore API error [%1$s]: %2$s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:945
+msgid ""
+"This payment method is temporarily unavailable. The store has not yet "
+"configured the required wallet for the selected blockchain network. Please "
+"choose a different payment method or contact the store."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:947
+msgid ""
+"This payment method is temporarily unavailable due to a configuration issue. "
+"Please choose a different payment method or contact the store."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:949
+msgid "Too many requests. Please wait a moment and try again."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:951
+msgid ""
+"Unable to initiate payment. Please try again or choose a different payment "
+"method."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:960
+msgid ""
+"Unexpected response from the payment monitoring service. Please try again."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:997
+#, php-format
+msgid "Awaiting %1$s %2$s transfer on %3$s to %4$s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1132
+msgid "PAYMENT INSTRUCTIONS"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1136
+#, php-format
+msgid "Amount: %1$s %2$s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1142
+#, php-format
+msgid "Network: %s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1147
+#, php-format
+msgid "Address: %s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1153
+#, php-format
+msgid "Expires: %s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1157
+#: includes/class-wc-gateway-payzcore.php:1185
+msgid ""
+"Send the exact amount shown above to the address provided. Your order will "
+"be confirmed automatically once the transfer is detected on the blockchain."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1162
+msgid "Payment Instructions"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1166
+msgid "Amount:"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1172
+msgid "Network:"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1178
+msgid "Address:"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1238
+msgid "Copy failed"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1244
+msgid "Unable to check status"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1246
+msgid "Failed to submit transaction hash. Please try again."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1247
+msgid "Please enter a transaction hash."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1249
+msgid "Submitting..."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1271
+msgid "Invalid order."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1277
+#: includes/class-wc-gateway-payzcore.php:1354
+msgid "Order not found."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1282
+#: includes/class-wc-gateway-payzcore.php:1359
+msgid "Invalid order key."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1306
+msgid "Payment ID not found."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1342
+msgid "Missing required fields."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1348
+msgid "Invalid transaction hash format."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1365
+msgid "Confirmation endpoint not available for this order."
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1378
+#, php-format
+msgid "Customer submitted transaction hash: %s"
+msgstr ""
+
+#: includes/class-wc-gateway-payzcore.php:1384
+msgid "Transaction hash submitted successfully."
+msgstr ""
+
+#: templates/payment-instructions.php:42
+msgid "TRC20 (Tron)"
+msgstr ""
+
+#: templates/payment-instructions.php:43
+msgid "BEP20 (BNB Smart Chain)"
+msgstr ""
+
+#: templates/payment-instructions.php:44
+msgid "ERC20 (Ethereum)"
+msgstr ""
+
+#: templates/payment-instructions.php:45
+msgid "Polygon"
+msgstr ""
+
+#: templates/payment-instructions.php:46
+msgid "Arbitrum"
+msgstr ""
+
+#: templates/payment-instructions.php:89
+msgid "Copy amount"
+msgstr ""
+
+#: templates/payment-instructions.php:121
+msgid "Payment QR Code"
+msgstr ""
+
+#: templates/payment-instructions.php:138
+msgid "Copy address"
+msgstr ""
