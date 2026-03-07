@@ -3,7 +3,7 @@
  * Plugin Name: PayzCore for WooCommerce
  * Plugin URI: https://github.com/payzcore/woocommerce
  * Description: Accept stablecoin payments via PayzCore blockchain transaction monitoring. Non-custodial USDT/USDC monitoring on TRC20, BEP20, ERC20, Polygon, and Arbitrum networks.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: PayzCore
  * Author URI: https://payzcore.com
  * License: GPL v2 or later
@@ -20,7 +20,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PAYZCORE_VERSION', '1.0.0' );
+define( 'PAYZCORE_VERSION', '1.0.1' );
 define( 'PAYZCORE_PLUGIN_FILE', __FILE__ );
 define( 'PAYZCORE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PAYZCORE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

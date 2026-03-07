@@ -6,7 +6,7 @@ Tested up to: 6.9
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.6
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -157,6 +157,9 @@ Yes. The plugin fully supports WooCommerce High-Performance Order Storage.
 
 == Changelog ==
 
+= 1.0.1 =
+* Fixed QR code visibility on light backgrounds (standard black-on-white QR)
+
 = 1.0.0 =
 * Initial release
 * Multi-network support: TRC20, BEP20, ERC20, Polygon, Arbitrum
@@ -170,6 +173,9 @@ Yes. The plugin fully supports WooCommerce High-Performance Order Storage.
 * HPOS (High-Performance Order Storage) compatible
 
 == Upgrade Notices ==
+
+= 1.0.1 =
+QR code display fix. No configuration changes needed.
 
 = 1.0.0 =
 Initial release. Configure your API key and webhook secret in WooCommerce settings.
