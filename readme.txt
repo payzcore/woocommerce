@@ -2,7 +2,7 @@
 Contributors: payzcore
 Tags: usdt, usdc, crypto, stablecoin, cryptocurrency
 Requires at least: 5.8
-Tested up to: 6.9.1
+Tested up to: 6.9
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 10.5.3
@@ -184,7 +184,7 @@ Yes. The plugin fully supports WooCommerce High-Performance Order Storage.
 * Improved: Proper escaping on all webhook order note values
 * Improved: Order key validation on thank-you page script loading
 * Improved: Added return statements after all wp_send_json calls
-* Updated: Tested up to WordPress 6.9.1
+* Updated: Tested up to WordPress 6.9
 * Updated: WC tested up to 10.5.3
 
 = 1.0.1 =

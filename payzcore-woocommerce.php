@@ -10,7 +10,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: payzcore-for-woocommerce
  * Requires at least: 5.8
- * Tested up to: 6.9.1
+ * Tested up to: 6.9
  * Requires PHP: 7.4
  * WC requires at least: 7.0
  * WC tested up to: 10.5.3
