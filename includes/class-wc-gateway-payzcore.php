@@ -709,8 +709,9 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		echo '</div>';
 
 		// Inline JS to update token options based on selected network.
-		// Uses wp_add_inline_script() per WordPress coding standards.
-		$inline_js = '(function(){
+		// Uses wc_enqueue_js() which is the WooCommerce-recommended way to add
+		// inline JS on checkout (works with both full page load and AJAX fragments).
+		wc_enqueue_js( '(function(){
 			var networkEl = document.getElementById("payzcore_network");
 			var tokenField = document.getElementById("payzcore_token_field");
 			var tokenEl = document.getElementById("payzcore_token");
@@ -732,10 +733,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			}
 			networkEl.addEventListener("change", update);
 			update();
-		})();';
-		wp_register_script( 'payzcore-token-selector', '', array(), PAYZCORE_VERSION, true );
-		wp_enqueue_script( 'payzcore-token-selector' );
-		wp_add_inline_script( 'payzcore-token-selector', $inline_js );
+		})();' );
 	}
 
 	/**
