@@ -2,12 +2,12 @@
 Contributors: payzcore
 Tags: usdt, usdc, crypto, stablecoin, cryptocurrency
 Requires at least: 5.8
-Tested up to: 6.9
+Tested up to: 6.9.1
 Requires PHP: 7.4
 WC requires at least: 7.0
-WC tested up to: 9.6
+WC tested up to: 10.5.3
 Requires Plugins: woocommerce
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,7 +112,7 @@ No data is sent unless the plugin is enabled and configured with an API key. Pay
 
 This plugin also displays links to third-party blockchain explorers so users can verify their transactions on the blockchain. No data is sent to these services by the plugin — they are informational links only, opened in the user's browser.
 
-* [Tronscan](https://tronscan.org) — TRC20 transaction explorer ([Terms](https://tronscan.org/), [Privacy](https://tronscan.org/))
+* [Tronscan](https://tronscan.org) — TRC20 transaction explorer ([Terms](https://tronscan.org/#/about/terms), [Privacy](https://tronscan.org/#/about/privacyPolicy))
 * [BscScan](https://bscscan.com) — BEP20 transaction explorer ([Terms](https://bscscan.com/terms), [Privacy](https://bscscan.com/privacyPolicy))
 * [Etherscan](https://etherscan.io) — ERC20 transaction explorer ([Terms](https://etherscan.io/terms), [Privacy](https://etherscan.io/privacypolicy))
 * [PolygonScan](https://polygonscan.com) — Polygon transaction explorer ([Terms](https://polygonscan.com/terms), [Privacy](https://polygonscan.com/privacyPolicy))
@@ -166,6 +166,27 @@ Yes. The plugin fully supports WooCommerce High-Performance Order Storage.
 
 == Changelog ==
 
+= 1.0.2 =
+* Security: SSRF protection on confirm endpoint with host validation
+* Security: Webhook idempotency with transient lock to prevent double-processing
+* Security: Removed SVG from allowed QR code formats (XSS prevention)
+* Security: Generic error messages to customers (no internal API details exposed)
+* Security: API URL field restricted to HTTPS only
+* Fixed: Webhook race condition — expired/cancelled events no longer cancel paid orders
+* Fixed: Template variable mismatch for nonce fields
+* Fixed: HPOS compatibility — replaced meta_query with meta_key/meta_value
+* Fixed: Event listener leak on checkout page during AJAX updates
+* Fixed: QR code re-validated at render time
+* Fixed: order_is_virtual returns false for empty item sets
+* Improved: All inline styles moved to enqueued CSS files (WordPress.org compliance)
+* Improved: Network/token selector moved from inline JS to enqueued script file
+* Improved: All text defaults wrapped in translation functions (i18n ready)
+* Improved: Proper escaping on all webhook order note values
+* Improved: Order key validation on thank-you page script loading
+* Improved: Added return statements after all wp_send_json calls
+* Updated: Tested up to WordPress 6.9.1
+* Updated: WC tested up to 10.5.3
+
 = 1.0.1 =
 * Fixed QR code visibility on light backgrounds (standard black-on-white QR)
 
@@ -182,6 +203,9 @@ Yes. The plugin fully supports WooCommerce High-Performance Order Storage.
 * HPOS (High-Performance Order Storage) compatible
 
 == Upgrade Notices ==
+
+= 1.0.2 =
+Security hardening and WordPress.org compliance improvements. No configuration changes needed.
 
 = 1.0.1 =
 QR code display fix. No configuration changes needed.

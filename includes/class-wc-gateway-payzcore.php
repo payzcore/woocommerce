@@ -93,6 +93,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_ajax_payzcore_check_status', array( $this, 'ajax_check_status' ) );
@@ -133,6 +134,16 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 	 * @return bool
 	 */
 	public function process_admin_options() {
+		// Validate api_url before saving — must be HTTPS.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by WooCommerce in parent::process_admin_options().
+		if ( isset( $_POST['woocommerce_payzcore_api_url'] ) ) {
+			$api_url_input = sanitize_text_field( wp_unslash( $_POST['woocommerce_payzcore_api_url'] ) );
+			if ( ! empty( $api_url_input ) && strpos( $api_url_input, 'https://' ) !== 0 ) {
+				WC_Admin_Settings::add_error( __( 'API URL must use HTTPS.', 'payzcore-for-woocommerce' ) );
+				$_POST['woocommerce_payzcore_api_url'] = PayzCore_API::DEFAULT_BASE_URL;
+			}
+		}
+
 		$saved = parent::process_admin_options();
 
 		// Re-read saved values.
@@ -255,7 +266,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		$api_key       = $this->get_option( 'api_key', '' );
 
 		if ( empty( $api_key ) ) {
-			return '<div style="background:#1c1917;border:1px solid rgba(161,161,170,0.2);border-radius:6px;padding:12px 16px;font-size:13px;color:#a1a1aa;">'
+			return '<div class="payzcore-config-status payzcore-config-status--empty">'
 				. esc_html__( 'Enter your API Key and click Save to connect with PayzCore.', 'payzcore-for-woocommerce' )
 				. '</div>';
 		}
@@ -273,15 +284,15 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 
 			$time_display = ! empty( $cached_at ) ? esc_html( $cached_at ) : '—';
 
-			return '<div style="background:#022c22;border:1px solid rgba(6,182,212,0.3);border-radius:6px;padding:12px 16px;font-size:13px;color:#d1fae5;">'
-				. '<strong style="color:#06b6d4;">' . esc_html__( 'Connected', 'payzcore-for-woocommerce' ) . '</strong><br>'
+			return '<div class="payzcore-config-status payzcore-config-status--connected">'
+				. '<strong>' . esc_html__( 'Connected', 'payzcore-for-woocommerce' ) . '</strong><br>'
 				. sprintf(
 					/* translators: %s: list of available networks */
 					esc_html__( 'Available networks: %s', 'payzcore-for-woocommerce' ),
 					implode( ', ', $chain_parts )
 				)
 				. '<br>'
-				. '<span style="color:#a1a1aa;font-size:12px;">'
+				. '<span class="payzcore-sync-info">'
 				. sprintf(
 					/* translators: %s: last sync date/time */
 					esc_html__( 'Last synced: %s', 'payzcore-for-woocommerce' ),
@@ -293,9 +304,26 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		}
 
 		// Has API key but no cached config yet.
-		return '<div style="background:#1c1917;border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:12px 16px;font-size:13px;color:#fbbf24;">'
+		return '<div class="payzcore-config-status payzcore-config-status--pending">'
 			. esc_html__( 'Not synced yet. Click Save to connect and fetch your project configuration from PayzCore.', 'payzcore-for-woocommerce' )
 			. '</div>';
+	}
+
+	/**
+	 * Enqueue admin styles on the gateway settings page.
+	 *
+	 * @return void
+	 */
+	public function enqueue_admin_styles() {
+		$screen = get_current_screen();
+		if ( $screen && 'woocommerce_page_wc-settings' === $screen->id ) {
+			wp_enqueue_style(
+				'payzcore-admin',
+				PAYZCORE_PLUGIN_URL . 'assets/css/payzcore-admin.css',
+				array(),
+				PAYZCORE_VERSION
+			);
+		}
 	}
 
 	/**
@@ -305,25 +333,29 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 	 */
 	public function admin_options() {
 		?>
-		<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1500" fill="#06b6d4" style="width:32px;height:32px;">
+		<div class="payzcore-admin-header">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1500" fill="#06b6d4">
 				<path d="M 475.7 1024.3 L 475.7 1258.2 L 709.6 1258.2 L 709.6 1024.3 L 1042.7 1024.3 C 1102.7 1024.3 1154.9 999.9 1194.4 960.8 C 1233.6 921.6 1257.9 869 1257.9 809.1 L 1257.9 457 C 1257.9 397 1233.6 344.8 1194.4 305.3 C 1155.2 266.1 1102.7 241.8 1042.7 241.8 L 690.9 241.8 C 631 241.8 578.7 266.1 539.2 305.3 C 499.7 344.5 475.7 397 475.7 457 L 475.7 790.1 L 7.9 790.1 L 7.9 1024 L 475.7 1024 Z M 241.8 790.4 L 241.8 457 C 241.8 333.5 292.2 221.3 372.7 138.8 C 455.2 58.3 567.4 7.9 690.9 7.9 L 1042.7 7.9 C 1166.2 7.9 1278.4 58.3 1360.9 138.8 C 1441.7 221.3 1492.1 333.5 1492.1 457 L 1492.1 808.8 C 1492.1 932.3 1441.7 1044.5 1361.2 1127 C 1279 1207.4 1166.5 1257.9 1043 1257.9 L 709.6 1257.9 L 709.6 1492.1 L 475.7 1492.1 L 475.7 1258.2 L 241.8 1258.2 Z M 938.2 475.7 L 796 475.7 C 773.4 475.7 751.2 485.2 736 501.8 C 719.1 516.7 709.9 539.2 709.9 561.8 L 709.9 790.1 L 938.2 790.1 C 960.8 790.1 983 780.6 998.2 764 C 1015.1 749.1 1024.3 726.5 1024.3 704 L 1024.3 561.8 C 1024.3 539.2 1014.8 517 998.2 501.8 C 983 485.2 960.5 475.7 938.2 475.7 Z"/>
 			</svg>
 			<div>
-				<h2 style="margin:0;font-size:20px;color:#1e293b;">PayzCore</h2>
-				<p style="margin:2px 0 0;font-size:13px;color:#64748b;">Stablecoin Transaction Monitoring</p>
+				<h2>PayzCore</h2>
+				<p>Stablecoin Transaction Monitoring</p>
 			</div>
 		</div>
 		<?php
 		if ( 'USD' !== get_woocommerce_currency() ) {
 			?>
-			<div class="notice notice-warning inline" style="margin:12px 0;">
+			<div class="notice notice-warning inline payzcore-currency-notice">
 				<p>
 					<?php
-					printf(
-						/* translators: %s: current store currency code */
-						esc_html__( 'Your store currency is %s. PayzCore stablecoin payments require USD as the store currency because USDT/USDC are pegged 1:1 to the US Dollar. The payment method will not appear at checkout until the store currency is set to USD.', 'payzcore-for-woocommerce' ),
-						'<strong>' . esc_html( get_woocommerce_currency() ) . '</strong>'
+					$currency_code = esc_html( get_woocommerce_currency() );
+					echo wp_kses(
+						sprintf(
+							/* translators: %s: current store currency code wrapped in <strong> */
+							__( 'Your store currency is %s. PayzCore stablecoin payments require USD as the store currency because USDT/USDC are pegged 1:1 to the US Dollar. The payment method will not appear at checkout until the store currency is set to USD.', 'payzcore-for-woocommerce' ),
+							'<strong>' . $currency_code . '</strong>'
+						),
+						array( 'strong' => array() )
 					);
 					?>
 				</p>
@@ -358,14 +390,14 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 				'title'       => __( 'Setup Guide', 'payzcore-for-woocommerce' ),
 				'type'        => 'title',
 				'description' => sprintf(
-					'<div style="background:#0c1222;border:1px solid rgba(6,182,212,0.3);border-radius:8px;padding:16px;margin:4px 0 8px;font-size:13px;line-height:1.6;color:#a1a1aa;">'
-					. '<strong style="color:#06b6d4;font-size:14px;">%s</strong><br><br>'
-					. '<strong>1.</strong> %s <a href="https://app.payzcore.com/register" target="_blank" style="color:#06b6d4;">app.payzcore.com</a><br>'
+					'<div class="payzcore-setup-guide">'
+					. '<strong class="payzcore-guide-title">%s</strong><br><br>'
+					. '<strong>1.</strong> %s <a href="https://app.payzcore.com/register" target="_blank">app.payzcore.com</a><br>'
 					. '<strong>2.</strong> %s<br>'
 					. '<strong>3.</strong> %s<br>'
-					. '<strong>4.</strong> %s <code style="background:#1a1a2e;padding:2px 6px;border-radius:3px;font-size:12px;color:#e4e4e7;">%s</code><br>'
+					. '<strong>4.</strong> %s <code>%s</code><br>'
 					. '<strong>5.</strong> %s<br><br>'
-					. '<span style="color:#f59e0b;">⚠</span> %s'
+					. '<span class="payzcore-warning-icon">⚠</span> %s'
 					. '</div>',
 					__( 'Before you begin:', 'payzcore-for-woocommerce' ),
 					__( 'Create a PayzCore account at', 'payzcore-for-woocommerce' ),
@@ -426,11 +458,12 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 				'placeholder' => 'whsec_...',
 			),
 			'api_url'        => array(
-				'title'       => __( 'API URL', 'payzcore-for-woocommerce' ),
-				'type'        => 'text',
-				'description' => __( 'PayzCore API endpoint. Change only if using a self-hosted instance.', 'payzcore-for-woocommerce' ),
-				'default'     => PayzCore_API::DEFAULT_BASE_URL,
-				'desc_tip'    => true,
+				'title'             => __( 'API URL', 'payzcore-for-woocommerce' ),
+				'type'              => 'text',
+				'description'       => __( 'PayzCore API endpoint. Change only if using a self-hosted instance. Must use HTTPS.', 'payzcore-for-woocommerce' ),
+				'default'           => PayzCore_API::DEFAULT_BASE_URL,
+				'desc_tip'          => true,
+				'custom_attributes' => array( 'pattern' => 'https://.*' ),
 			),
 			'expiry_time'    => array(
 				'title'       => __( 'Payment Expiry (seconds)', 'payzcore-for-woocommerce' ),
@@ -462,143 +495,143 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			'text_payment_title' => array(
 				'title'   => __( 'Page Title', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Complete Your Payment',
+				'default' => __( 'Complete Your Payment', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 				'description' => __( 'Main heading on the payment page.', 'payzcore-for-woocommerce' ),
 			),
 			'text_payment_subtitle' => array(
 				'title'   => __( 'Page Subtitle', 'payzcore-for-woocommerce' ),
 				'type'    => 'textarea',
-				'default' => 'Send the exact amount below to the provided address',
+				'default' => __( 'Send the exact amount below to the provided address', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 				'description' => __( 'Subtitle text below the heading.', 'payzcore-for-woocommerce' ),
 			),
 			'text_amount_label' => array(
 				'title'   => __( 'Amount Label', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Amount to Send',
+				'default' => __( 'Amount to Send', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_amount_warning' => array(
 				'title'   => __( 'Amount Warning', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Send the exact amount including cents',
+				'default' => __( 'Send the exact amount including cents', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_address_label' => array(
 				'title'   => __( 'Address Label', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Wallet Address',
+				'default' => __( 'Wallet Address', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_time_remaining' => array(
 				'title'   => __( 'Time Remaining', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Time remaining:',
+				'default' => __( 'Time remaining:', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_step1' => array(
 				'title'   => __( 'Step 1 Text', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Copy the address or scan the QR code',
+				'default' => __( 'Copy the address or scan the QR code', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_step2_template' => array(
 				'title'   => __( 'Step 2 Text', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Send exactly {amount} {token}',
+				'default' => __( 'Send exactly {amount} {token}', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 				'description' => __( 'Use {amount} and {token} as placeholders.', 'payzcore-for-woocommerce' ),
 			),
 			'text_step3' => array(
 				'title'   => __( 'Step 3 Text', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Wait for blockchain confirmation (automatic)',
+				'default' => __( 'Wait for blockchain confirmation (automatic)', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_status_waiting' => array(
 				'title'   => __( 'Status: Waiting', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Checking blockchain for your transaction',
+				'default' => __( 'Checking blockchain for your transaction', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_status_confirming' => array(
 				'title'   => __( 'Status: Confirming', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Transfer detected, confirming...',
+				'default' => __( 'Transfer detected, confirming...', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_status_confirmed' => array(
 				'title'   => __( 'Status: Confirmed', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Payment confirmed!',
+				'default' => __( 'Payment confirmed!', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_status_expired' => array(
 				'title'   => __( 'Status: Expired', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Payment window expired',
+				'default' => __( 'Payment window expired', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_status_partial' => array(
 				'title'   => __( 'Status: Partial', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Partial transfer detected',
+				'default' => __( 'Partial transfer detected', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_copied' => array(
 				'title'   => __( 'Copied Button', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Copied!',
+				'default' => __( 'Copied!', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_redirecting' => array(
 				'title'   => __( 'Redirecting Text', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Redirecting...',
+				'default' => __( 'Redirecting...', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_txid_label' => array(
 				'title'   => __( 'Transaction Hash Label', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Transaction Hash (TxID)',
+				'default' => __( 'Transaction Hash (TxID)', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 				'description' => __( 'Label for the transaction hash input in static wallet mode.', 'payzcore-for-woocommerce' ),
 			),
 			'text_txid_placeholder' => array(
 				'title'   => __( 'Transaction Hash Placeholder', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Paste your transaction hash here',
+				'default' => __( 'Paste your transaction hash here', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_txid_button' => array(
 				'title'   => __( 'Confirm Button Text', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Confirm Payment',
+				'default' => __( 'Confirm Payment', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_txid_success' => array(
 				'title'   => __( 'Confirmation Success Text', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Transaction submitted. Awaiting blockchain confirmation.',
+				'default' => __( 'Transaction submitted. Awaiting blockchain confirmation.', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_txid_invalid' => array(
 				'title'   => __( 'Invalid Hash Text', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Invalid transaction hash format. Please enter a valid hex hash.',
+				'default' => __( 'Invalid transaction hash format. Please enter a valid hex hash.', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_partial_detail' => array(
 				'title'   => __( 'Partial Payment Detail', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Partial transfer detected - Please send the remaining amount to the same address',
+				'default' => __( 'Partial transfer detected - Please send the remaining amount to the same address', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 			'text_connection_issue' => array(
 				'title'   => __( 'Connection Issue Text', 'payzcore-for-woocommerce' ),
 				'type'    => 'text',
-				'default' => 'Connection issue. Still trying to check payment status...',
+				'default' => __( 'Connection issue. Still trying to check payment status...', 'payzcore-for-woocommerce' ),
 				'desc_tip' => true,
 			),
 		);
@@ -638,7 +671,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		$networks = $this->get_enabled_networks();
 
 		if ( empty( $networks ) ) {
-			echo '<p style="color:#ef4444;">' . esc_html__( 'Payment configuration is not available. Please contact the store.', 'payzcore-for-woocommerce' ) . '</p>';
+			echo '<p class="payzcore-error-text">' . esc_html__( 'Payment configuration is not available. Please contact the store.', 'payzcore-for-woocommerce' ) . '</p>';
 			return;
 		}
 
@@ -659,10 +692,10 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			}
 			// Single network, multiple tokens: show token selector only.
 			$default_token = $this->get_default_token();
-			echo '<div class="payzcore-network-select" style="margin-bottom:12px;">';
+			echo '<div class="payzcore-network-select">';
 			echo '<p class="form-row form-row-wide">';
 			echo '<label for="payzcore_token">' . esc_html__( 'Stablecoin', 'payzcore-for-woocommerce' ) . '</label>';
-			echo '<select name="payzcore_token" id="payzcore_token" class="select" style="width:100%;">';
+			echo '<select name="payzcore_token" id="payzcore_token" class="select payzcore-select-full">';
 			foreach ( $tokens as $t ) {
 				$t_label = 'USDT' === $t ? 'USDT (Tether)' : ( 'USDC' === $t ? 'USDC (USD Coin)' : $t );
 				echo '<option value="' . esc_attr( $t ) . '"' . selected( $default_token, $t, false ) . '>' . esc_html( $t_label ) . '</option>';
@@ -687,10 +720,10 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			'USDC' => 'USDC (USD Coin)',
 		);
 
-		echo '<div class="payzcore-network-select" style="margin-bottom:12px;">';
+		echo '<div class="payzcore-network-select">';
 		echo '<p class="form-row form-row-wide">';
 		echo '<label for="payzcore_network">' . esc_html__( 'Blockchain Network', 'payzcore-for-woocommerce' ) . ' <abbr class="required" title="required">*</abbr></label>';
-		echo '<select name="payzcore_network" id="payzcore_network" class="select" style="width:100%;">';
+		echo '<select name="payzcore_network" id="payzcore_network" class="select payzcore-select-full">';
 		foreach ( $networks as $network ) {
 			$label = isset( $network_labels[ $network ] ) ? $network_labels[ $network ] : $network;
 			echo '<option value="' . esc_attr( $network ) . '">' . esc_html( $label ) . '</option>';
@@ -702,38 +735,25 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		$default_token = $this->get_default_token();
 		echo '<p class="form-row form-row-wide" id="payzcore_token_field">';
 		echo '<label for="payzcore_token">' . esc_html__( 'Stablecoin', 'payzcore-for-woocommerce' ) . '</label>';
-		echo '<select name="payzcore_token" id="payzcore_token" class="select" style="width:100%;">';
+		echo '<select name="payzcore_token" id="payzcore_token" class="select payzcore-select-full">';
 		// Initial options populated by JS on load.
 		echo '</select>';
 		echo '</p>';
 		echo '</div>';
 
-		// Inline JS to update token options based on selected network.
-		// Uses wc_enqueue_js() which is the WooCommerce-recommended way to add
-		// inline JS on checkout (works with both full page load and AJAX fragments).
-		wc_enqueue_js( '(function(){
-			var networkEl = document.getElementById("payzcore_network");
-			var tokenField = document.getElementById("payzcore_token_field");
-			var tokenEl = document.getElementById("payzcore_token");
-			if (!networkEl || !tokenEl) return;
-			var networkTokens = ' . wp_json_encode( $network_tokens_map ) . ';
-			var tokenLabels = ' . wp_json_encode( $token_labels ) . ';
-			var defaultToken = ' . wp_json_encode( $default_token ) . ';
-			function update() {
-				var tokens = networkTokens[networkEl.value] || ["USDT"];
-				while (tokenEl.firstChild) { tokenEl.removeChild(tokenEl.firstChild); }
-				for (var i = 0; i < tokens.length; i++) {
-					var opt = document.createElement("option");
-					opt.value = tokens[i];
-					opt.textContent = tokenLabels[tokens[i]] || tokens[i];
-					if (tokens[i] === defaultToken) opt.selected = true;
-					tokenEl.appendChild(opt);
-				}
-				if (tokenField) { tokenField.style.display = tokens.length <= 1 ? "none" : ""; }
-			}
-			networkEl.addEventListener("change", update);
-			update();
-		})();' );
+		// Enqueue the payment fields JS with network/token data.
+		wp_enqueue_script(
+			'payzcore-payment-fields',
+			PAYZCORE_PLUGIN_URL . 'assets/js/payzcore-payment-fields.js',
+			array( 'jquery' ),
+			PAYZCORE_VERSION,
+			true
+		);
+		wp_localize_script( 'payzcore-payment-fields', 'payzcore_fields_params', array(
+			'network_tokens' => $network_tokens_map,
+			'token_labels'   => $token_labels,
+			'default_token'  => $default_token,
+		) );
 	}
 
 	/**
@@ -883,7 +903,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			'amount'           => $amount,
 			'network'          => $network,
 			'token'            => $token,
-			'external_ref'     => $order->get_billing_email(),
+			'external_ref'     => (string) $order_id,
 			'external_order_id' => (string) $order_id,
 			'expires_in'       => $this->expiry_time,
 			'metadata'         => array(
@@ -963,7 +983,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		$order->update_meta_data( '_payzcore_token', sanitize_text_field( $token_name ) );
 		$order->update_meta_data( '_payzcore_expires_at', sanitize_text_field( $payment['expires_at'] ) );
 
-		if ( ! empty( $payment['qr_code'] ) && preg_match( '/^data:image\/(png|jpeg|gif|svg\+xml|webp);base64,/', $payment['qr_code'] ) ) {
+		if ( ! empty( $payment['qr_code'] ) && preg_match( '/^data:image\/(png|jpeg|gif|webp);base64,/', $payment['qr_code'] ) ) {
 			$order->update_meta_data( '_payzcore_qr_code', $payment['qr_code'] );
 		}
 
@@ -1041,6 +1061,11 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			return;
 		}
 
+		// Re-validate QR code data URI at render time.
+		if ( ! empty( $qr_code ) && ! preg_match( '/^data:image\/(png|jpeg|gif|webp);base64,[A-Za-z0-9+\/=]+$/', $qr_code ) ) {
+			$qr_code = '';
+		}
+
 		if ( in_array( $order->get_status(), array( 'processing', 'completed' ), true ) ) {
 			return;
 		}
@@ -1080,7 +1105,22 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 
 		$template_path = PAYZCORE_PLUGIN_DIR . 'templates/payment-instructions.php';
 		if ( file_exists( $template_path ) ) {
-			extract( $template_args ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
+			$payment_id      = $template_args['payment_id'];
+			$address         = $template_args['address'];
+			$expected_amount = $template_args['expected_amount'];
+			$network         = $template_args['network'];
+			$token           = $template_args['token'];
+			$expires_at      = $template_args['expires_at'];
+			$qr_code         = $template_args['qr_code'];
+			$notice          = $template_args['notice'];
+			$original_amount = $template_args['original_amount'];
+			$requires_txid   = $template_args['requires_txid'];
+			$confirm_endpoint = $template_args['confirm_endpoint'];
+			$ajax_url        = $template_args['ajax_url'];
+			$nonce           = $template_args['nonce'];
+			$txid_nonce      = $template_args['txid_nonce'];
+			$order_id        = $template_args['order_id'];
+			$texts           = $template_args['texts'];
 			include $template_path;
 		}
 	}
@@ -1199,6 +1239,11 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			if ( ! $order || $order->get_payment_method() !== $this->id ) {
 				return;
 			}
+			// Verify the order key matches to prevent unauthorized access.
+			$order_key = isset( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ) : '';
+			if ( ! $order->key_is_valid( $order_key ) ) {
+				return;
+			}
 		}
 
 		wp_enqueue_style(
@@ -1260,17 +1305,20 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 
 		if ( ! $order_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid order.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$order = wc_get_order( $order_id );
 
 		if ( ! $order ) {
 			wp_send_json_error( array( 'message' => __( 'Order not found.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$order_key = isset( $_POST['order_key'] ) ? sanitize_text_field( wp_unslash( $_POST['order_key'] ) ) : '';
 		if ( $order->get_order_key() !== $order_key ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid order key.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$status = $order->get_status();
@@ -1285,24 +1333,29 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 					'tx_hash'     => $order->get_meta( '_payzcore_tx_hash', true ),
 				)
 			);
+			return;
 		}
 
 		if ( 'cancelled' === $status ) {
 			wp_send_json_success( array( 'status' => 'expired' ) );
+			return;
 		}
 
 		$payment_id = $order->get_meta( '_payzcore_payment_id', true );
 
 		if ( empty( $payment_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'Payment ID not found.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$result = $this->get_api()->get_payment( $payment_id );
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error(
-				array( 'message' => $result->get_error_message() )
-			);
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'Status check failed: ' . $result->get_error_message(), array( 'source' => 'payzcore' ) );
+			}
+			wp_send_json_error( array( 'message' => __( 'Unable to check payment status. Please wait and try again.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$payment_status = isset( $result['payment']['status'] ) ? $result['payment']['status'] : 'pending';
@@ -1331,35 +1384,44 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 
 		if ( ! $order_id || empty( $tx_hash ) ) {
 			wp_send_json_error( array( 'message' => __( 'Missing required fields.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		// Validate tx_hash format (hex string, 10-128 chars)
 		$clean_hash = preg_replace( '/^0x/i', '', $tx_hash );
 		if ( ! preg_match( '/^[a-fA-F0-9]{10,128}$/', $clean_hash ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid transaction hash format.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$order = wc_get_order( $order_id );
 
 		if ( ! $order ) {
 			wp_send_json_error( array( 'message' => __( 'Order not found.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$order_key = isset( $_POST['order_key'] ) ? sanitize_text_field( wp_unslash( $_POST['order_key'] ) ) : '';
 		if ( $order->get_order_key() !== $order_key ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid order key.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$confirm_endpoint = $order->get_meta( '_payzcore_confirm_endpoint', true );
 
 		if ( empty( $confirm_endpoint ) ) {
 			wp_send_json_error( array( 'message' => __( 'Confirmation endpoint not available for this order.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$result = $this->get_api()->confirm_payment( $confirm_endpoint, $tx_hash );
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'TxID confirm failed: ' . $result->get_error_message(), array( 'source' => 'payzcore' ) );
+			}
+			wp_send_json_error( array( 'message' => __( 'Unable to verify transaction. Please try again.', 'payzcore-for-woocommerce' ) ) );
+			return;
 		}
 
 		$order->update_meta_data( '_payzcore_submitted_txid', $tx_hash );

@@ -54,7 +54,7 @@ $payzcore_network_label = isset( $payzcore_network_labels[ $network ] ) ? $payzc
 	data-order-key="<?php echo esc_attr( $payzcore_order_key ); ?>"
 	data-payment-id="<?php echo esc_attr( $payment_id ); ?>"
 	data-expires-at="<?php echo esc_attr( $expires_at ); ?>"
-	data-requires-txid="<?php echo $requires_txid ? '1' : '0'; ?>">
+	data-requires-txid="<?php echo esc_attr( $requires_txid ? '1' : '0' ); ?>">
 
 	<div class="payzcore-payment-header">
 		<div class="payzcore-payment-header-icon">
@@ -170,11 +170,11 @@ $payzcore_network_label = isset( $payzcore_network_labels[ $network ] ) ? $payzc
 					class="payzcore-txid-submit">
 					<?php echo esc_html( $texts['txid_button'] ); ?>
 				</button>
-				<div class="payzcore-txid-message" id="payzcore-txid-message" style="display: none;"></div>
+				<div class="payzcore-txid-message payzcore-hidden" id="payzcore-txid-message"></div>
 			</div>
 		<?php endif; ?>
 
-		<div class="payzcore-status-section" id="payzcore-status" style="display: none;">
+		<div class="payzcore-status-section payzcore-hidden" id="payzcore-status">
 			<div class="payzcore-status-icon" id="payzcore-status-icon"></div>
 			<span class="payzcore-status-text" id="payzcore-status-text"></span>
 		</div>

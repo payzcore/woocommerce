@@ -96,7 +96,17 @@ class PayzCore_API {
 	 * @return array|WP_Error API response data on success, WP_Error on failure.
 	 */
 	public function confirm_payment( $endpoint, $tx_hash ) {
-		$url = ( strpos( $endpoint, 'http' ) === 0 ) ? $endpoint : $this->base_url . $endpoint;
+		if ( strpos( $endpoint, 'http' ) === 0 ) {
+			// Validate that absolute URLs point to our API host (prevent SSRF).
+			$endpoint_host = wp_parse_url( $endpoint, PHP_URL_HOST );
+			$base_host     = wp_parse_url( $this->base_url, PHP_URL_HOST );
+			if ( ! $endpoint_host || ! $base_host || $endpoint_host !== $base_host ) {
+				return new WP_Error( 'payzcore_invalid_endpoint', __( 'Invalid confirm endpoint URL.', 'payzcore-for-woocommerce' ) );
+			}
+			$url = $endpoint;
+		} else {
+			$url = $this->base_url . $endpoint;
+		}
 
 		$response = wp_remote_post(
 			$url,

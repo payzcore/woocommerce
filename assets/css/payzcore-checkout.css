@@ -526,3 +526,23 @@
 		height: 160px;
 	}
 }
+
+/* ----------------------------------------------------------------
+   Payment fields (checkout page)
+   ---------------------------------------------------------------- */
+
+.payzcore-network-select {
+	margin-bottom: 12px;
+}
+
+.payzcore-select-full {
+	width: 100%;
+}
+
+.payzcore-error-text {
+	color: #ef4444;
+}
+
+.payzcore-hidden {
+	display: none;
+}

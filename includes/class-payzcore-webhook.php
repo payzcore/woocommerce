@@ -73,8 +73,10 @@ class PayzCore_Webhook {
 				401
 			);
 		}
-		$ts = strtotime( sanitize_text_field( $timestamp ) );
-		if ( false === $ts || abs( time() - $ts ) > 300 ) {
+		$clean_ts = sanitize_text_field( $timestamp );
+		// PayzCore sends ISO 8601 timestamps; also accept Unix epoch.
+		$ts = is_numeric( $clean_ts ) ? intval( $clean_ts ) : strtotime( $clean_ts );
+		if ( false === $ts || 0 === $ts || abs( time() - $ts ) > 300 ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
 				wc_get_logger()->warning( 'Webhook rejected: timestamp too old or invalid (' . $timestamp . ')', array( 'source' => 'payzcore' ) );
 			}
@@ -134,8 +136,17 @@ class PayzCore_Webhook {
 			);
 		}
 
+		// Transient lock to prevent concurrent processing of the same payment.
+		$lock_key = 'payzcore_wh_' . $payment_id;
+		if ( false === set_transient( $lock_key, 1, 60 ) ) {
+			// Another request is already processing this payment.
+			return new WP_REST_Response( array( 'ok' => true, 'message' => 'Processing.' ), 200 );
+		}
+
+		// Idempotency: check if already processed (inside the lock).
 		$already_processed = $order->get_meta( '_payzcore_webhook_processed', true );
 		if ( 'yes' === $already_processed && in_array( $payment_event, array( 'payment.completed', 'payment.overpaid' ), true ) ) {
+			delete_transient( $lock_key );
 			return new WP_REST_Response(
 				array(
 					'ok'      => true,
@@ -146,6 +157,8 @@ class PayzCore_Webhook {
 		}
 
 		$this->process_event( $order, $payment_event, $paid_amount, $tx_hash, $network, $token, $payload );
+
+		delete_transient( $lock_key );
 
 		return new WP_REST_Response( array( 'ok' => true ), 200 );
 	}
@@ -182,9 +195,9 @@ class PayzCore_Webhook {
 				$note = sprintf(
 					/* translators: 1: paid amount 2: token name 3: network name 4: explorer link */
 					__( 'Payment confirmed. %1$s %2$s received on %3$s. Transaction: %4$s', 'payzcore-for-woocommerce' ),
-					$paid_amount,
-					$token,
-					$network,
+					esc_html( $paid_amount ),
+					esc_html( $token ),
+					esc_html( $network ),
 					$explorer_url ? '<a href="' . esc_url( $explorer_url ) . '" target="_blank">' . esc_html( substr( $tx_hash, 0, 16 ) ) . '...</a>' : esc_html( $tx_hash )
 				);
 				$order->add_order_note( $note );
@@ -205,10 +218,10 @@ class PayzCore_Webhook {
 				$note     = sprintf(
 					/* translators: 1: paid amount 2: token name 3: expected amount 4: network name 5: explorer link */
 					__( 'Overpayment detected. %1$s %2$s received (expected %3$s) on %4$s. Transaction: %5$s', 'payzcore-for-woocommerce' ),
-					$paid_amount,
-					$token,
-					$expected,
-					$network,
+					esc_html( $paid_amount ),
+					esc_html( $token ),
+					esc_html( $expected ),
+					esc_html( $network ),
 					$explorer_url ? '<a href="' . esc_url( $explorer_url ) . '" target="_blank">' . esc_html( substr( $tx_hash, 0, 16 ) ) . '...</a>' : esc_html( $tx_hash )
 				);
 				$order->add_order_note( $note );
@@ -225,16 +238,21 @@ class PayzCore_Webhook {
 				$note     = sprintf(
 					/* translators: 1: paid amount 2: expected amount 3: token name 4: network name */
 					__( 'Partial transfer detected. %1$s of %2$s %3$s received on %4$s. Awaiting remaining amount.', 'payzcore-for-woocommerce' ),
-					$paid_amount,
-					$expected,
-					$token,
-					$network
+					esc_html( $paid_amount ),
+					esc_html( $expected ),
+					esc_html( $token ),
+					esc_html( $network )
 				);
 				$order->add_order_note( $note );
 				$order->update_meta_data( '_payzcore_paid_amount', $paid_amount );
 				break;
 
 			case 'payment.expired':
+				// Don't cancel orders that are already paid/completed.
+				if ( in_array( $order->get_status(), array( 'processing', 'completed' ), true ) ) {
+					$order->add_order_note( __( 'Ignored payment.expired webhook — order already paid.', 'payzcore-for-woocommerce' ) );
+					break;
+				}
 				$note = __( 'Payment monitoring window expired. No sufficient transfer detected.', 'payzcore-for-woocommerce' );
 				$order->add_order_note( $note );
 				$order->set_status( 'cancelled', $note );
@@ -245,6 +263,11 @@ class PayzCore_Webhook {
 				break;
 
 			case 'payment.cancelled':
+				// Don't cancel orders that are already paid/completed.
+				if ( in_array( $order->get_status(), array( 'processing', 'completed' ), true ) ) {
+					$order->add_order_note( __( 'Ignored payment.cancelled webhook — order already paid.', 'payzcore-for-woocommerce' ) );
+					break;
+				}
 				$note = __( 'Payment was cancelled by the merchant.', 'payzcore-for-woocommerce' );
 				$order->add_order_note( $note );
 				$order->set_status( 'cancelled', $note );
@@ -282,12 +305,8 @@ class PayzCore_Webhook {
 		$orders = wc_get_orders(
 			array(
 				'limit'      => 1,
-				'meta_query' => array(
-					array(
-						'key'   => '_payzcore_payment_id',
-						'value' => $payment_id,
-					),
-				),
+				'meta_key'   => '_payzcore_payment_id',
+				'meta_value' => $payment_id,
 			)
 		);
 
@@ -330,7 +349,11 @@ class PayzCore_Webhook {
 	 * @return bool
 	 */
 	private function order_is_virtual( $order ) {
-		foreach ( $order->get_items() as $item ) {
+		$items = $order->get_items();
+		if ( empty( $items ) ) {
+			return false;
+		}
+		foreach ( $items as $item ) {
 			$product = $item->get_product();
 			if ( $product && ! $product->is_virtual() ) {
 				return false;
