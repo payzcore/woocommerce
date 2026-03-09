@@ -709,24 +709,18 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		echo '</div>';
 
 		// Inline JS to update token options based on selected network.
-		// Uses DOM createElement/removeChild (no innerHTML) for safe content injection.
-		?>
-		<script>
-		(function(){
+		// Uses wp_add_inline_script() per WordPress coding standards.
+		$inline_js = '(function(){
 			var networkEl = document.getElementById("payzcore_network");
 			var tokenField = document.getElementById("payzcore_token_field");
 			var tokenEl = document.getElementById("payzcore_token");
 			if (!networkEl || !tokenEl) return;
-
-			var networkTokens = <?php echo wp_json_encode( $network_tokens_map ); ?>;
-			var tokenLabels = <?php echo wp_json_encode( $token_labels ); ?>;
-			var defaultToken = <?php echo wp_json_encode( $default_token ); ?>;
-
+			var networkTokens = ' . wp_json_encode( $network_tokens_map ) . ';
+			var tokenLabels = ' . wp_json_encode( $token_labels ) . ';
+			var defaultToken = ' . wp_json_encode( $default_token ) . ';
 			function update() {
 				var tokens = networkTokens[networkEl.value] || ["USDT"];
-				while (tokenEl.firstChild) {
-					tokenEl.removeChild(tokenEl.firstChild);
-				}
+				while (tokenEl.firstChild) { tokenEl.removeChild(tokenEl.firstChild); }
 				for (var i = 0; i < tokens.length; i++) {
 					var opt = document.createElement("option");
 					opt.value = tokens[i];
@@ -734,15 +728,14 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 					if (tokens[i] === defaultToken) opt.selected = true;
 					tokenEl.appendChild(opt);
 				}
-				if (tokenField) {
-					tokenField.style.display = tokens.length <= 1 ? "none" : "";
-				}
+				if (tokenField) { tokenField.style.display = tokens.length <= 1 ? "none" : ""; }
 			}
 			networkEl.addEventListener("change", update);
 			update();
-		})();
-		</script>
-		<?php
+		})();';
+		wp_register_script( 'payzcore-token-selector', '', array(), PAYZCORE_VERSION, true );
+		wp_enqueue_script( 'payzcore-token-selector' );
+		wp_add_inline_script( 'payzcore-token-selector', $inline_js );
 	}
 
 	/**

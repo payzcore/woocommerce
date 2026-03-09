@@ -6,6 +6,7 @@ Tested up to: 6.9
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.6
+Requires Plugins: woocommerce
 Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -108,6 +109,14 @@ No data is sent unless the plugin is enabled and configured with an API key. Pay
 * [PayzCore Website](https://payzcore.com)
 * [PayzCore Terms of Service](https://payzcore.com/terms)
 * [PayzCore Privacy Policy](https://payzcore.com/privacy)
+
+This plugin also displays links to third-party blockchain explorers so users can verify their transactions on the blockchain. No data is sent to these services by the plugin — they are informational links only, opened in the user's browser.
+
+* [Tronscan](https://tronscan.org) — TRC20 transaction explorer ([Terms](https://tronscan.org/), [Privacy](https://tronscan.org/))
+* [BscScan](https://bscscan.com) — BEP20 transaction explorer ([Terms](https://bscscan.com/terms), [Privacy](https://bscscan.com/privacyPolicy))
+* [Etherscan](https://etherscan.io) — ERC20 transaction explorer ([Terms](https://etherscan.io/terms), [Privacy](https://etherscan.io/privacypolicy))
+* [PolygonScan](https://polygonscan.com) — Polygon transaction explorer ([Terms](https://polygonscan.com/terms), [Privacy](https://polygonscan.com/privacyPolicy))
+* [Arbiscan](https://arbiscan.io) — Arbitrum transaction explorer ([Terms](https://arbiscan.io/terms), [Privacy](https://arbiscan.io/privacyPolicy))
 
 == Installation ==
 

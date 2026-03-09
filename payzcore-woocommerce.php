@@ -14,6 +14,7 @@
  * Requires PHP: 7.4
  * WC requires at least: 7.0
  * WC tested up to: 9.6
+ * Requires Plugins: woocommerce
  *
  * @package PayzCore
  */
