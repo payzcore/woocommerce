@@ -255,7 +255,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 	/**
 	 * Build the HTML for the Connection Status field in admin settings.
 	 *
-	 * Reads cached config and displays: connected chains + last sync time,
+	 * Reads cached config and displays: connected networks + last sync time,
 	 * a "not synced" prompt, or the last error message.
 	 *
 	 * @return string HTML string.
@@ -707,18 +707,8 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		}
 
 		// Multiple networks: show network + token selectors.
-		$network_labels = array(
-			'TRC20'    => 'TRC20 (Tron) - Most popular',
-			'BEP20'    => 'BEP20 (BNB Smart Chain) - Low fees',
-			'ERC20'    => 'ERC20 (Ethereum)',
-			'POLYGON'  => 'Polygon - Lowest fees',
-			'ARBITRUM' => 'Arbitrum (L2) - Low fees',
-		);
-
-		$token_labels = array(
-			'USDT' => 'USDT (Tether)',
-			'USDC' => 'USDC (USD Coin)',
-		);
+		$network_labels = $this->get_network_labels();
+		$token_labels   = $this->get_token_labels();
 
 		echo '<div class="payzcore-network-select">';
 		echo '<p class="form-row form-row-wide">';
@@ -754,6 +744,99 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			'token_labels'   => $token_labels,
 			'default_token'  => $default_token,
 		) );
+	}
+
+	/**
+	 * external_order_id for a new PayzCore payment for this order.
+	 *
+	 * PayzCore returns the existing payment (any status, expired included) for a
+	 * repeated external_order_id. When the customer pays again after the previous
+	 * payment expired or was cancelled, a new id is needed:
+	 * "{order_id}-r{first 8 hex of sha256(previous payment id)}". While the previous
+	 * payment is still open, the same id is reused so the request stays idempotent.
+	 *
+	 * @param WC_Order $order Order.
+	 * @return string
+	 */
+	private function get_external_order_id( $order ) {
+		$current = (string) $order->get_meta( '_payzcore_external_order_id', true );
+		if ( '' === $current ) {
+			$current = (string) $order->get_id();
+		}
+
+		$previous_payment_id = (string) $order->get_meta( '_payzcore_payment_id', true );
+		if ( '' === $previous_payment_id ) {
+			return $current;
+		}
+
+		$previous = $this->get_api()->get_payment( $previous_payment_id );
+		$status   = ( ! is_wp_error( $previous ) && isset( $previous['payment']['status'] ) ) ? $previous['payment']['status'] : '';
+		if ( in_array( $status, array( 'expired', 'cancelled' ), true ) ) {
+			return $order->get_id() . '-r' . substr( hash( 'sha256', $previous_payment_id ), 0, 8 );
+		}
+		return $current;
+	}
+
+	/**
+	 * Display labels for networks shown at checkout.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_network_labels() {
+		return array(
+			'TRC20'    => 'TRC20 (Tron) - Most popular',
+			'BEP20'    => 'BEP20 (BNB Smart Chain) - Low fees',
+			'ERC20'    => 'ERC20 (Ethereum)',
+			'POLYGON'  => 'Polygon - Lowest fees',
+			'ARBITRUM' => 'Arbitrum (L2) - Low fees',
+		);
+	}
+
+	/**
+	 * Display labels for tokens shown at checkout.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_token_labels() {
+		return array(
+			'USDT' => 'USDT (Tether)',
+			'USDC' => 'USDC (USD Coin)',
+		);
+	}
+
+	/**
+	 * Data for the Cart/Checkout Blocks payment method (see PayzCore_Blocks_Payment_Method).
+	 *
+	 * @return array
+	 */
+	public function get_blocks_checkout_data() {
+		$networks       = $this->get_enabled_networks();
+		$network_labels = $this->get_network_labels();
+		$options        = array();
+		$network_tokens = array();
+		foreach ( $networks as $network ) {
+			$options[]                  = array(
+				'value' => $network,
+				'label' => isset( $network_labels[ $network ] ) ? $network_labels[ $network ] : $network,
+			);
+			$network_tokens[ $network ] = array_values( $this->get_network_tokens( $network ) );
+		}
+
+		return array(
+			'title'          => $this->title,
+			'description'    => $this->description,
+			'icon'           => $this->icon,
+			'networks'       => $options,
+			'network_tokens' => $network_tokens,
+			'token_labels'   => $this->get_token_labels(),
+			'default_token'  => $this->get_default_token(),
+			'supports'       => array_values( array_filter( $this->supports, array( $this, 'supports' ) ) ),
+			'i18n'           => array(
+				'network'     => __( 'Blockchain Network', 'payzcore-for-woocommerce' ),
+				'token'       => __( 'Stablecoin', 'payzcore-for-woocommerce' ),
+				'unavailable' => __( 'Payment configuration is not available. Please contact the store.', 'payzcore-for-woocommerce' ),
+			),
+		);
 	}
 
 	/**
@@ -904,7 +987,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 			'network'          => $network,
 			'token'            => $token,
 			'external_ref'     => (string) $order_id,
-			'external_order_id' => (string) $order_id,
+			'external_order_id' => $this->get_external_order_id( $order ),
 			'expires_in'       => $this->expiry_time,
 			'metadata'         => array(
 				'source'       => 'woocommerce',
@@ -977,6 +1060,7 @@ class WC_Gateway_PayzCore extends WC_Payment_Gateway {
 		$token_name = ! empty( $payment['token'] ) ? $payment['token'] : $token;
 
 		$order->update_meta_data( '_payzcore_payment_id', sanitize_text_field( $payment['id'] ) );
+		$order->update_meta_data( '_payzcore_external_order_id', sanitize_text_field( $params['external_order_id'] ) );
 		$order->update_meta_data( '_payzcore_address', sanitize_text_field( $payment['address'] ) );
 		$order->update_meta_data( '_payzcore_expected_amount', sanitize_text_field( $payment['amount'] ) );
 		$order->update_meta_data( '_payzcore_network', sanitize_text_field( $payment['network'] ) );

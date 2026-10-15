@@ -2,12 +2,12 @@
 Contributors: payzcore
 Tags: usdt, usdc, crypto, stablecoin, cryptocurrency
 Requires at least: 5.8
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 7.0
-WC tested up to: 10.5.3
+WC tested up to: 11.2
 Requires Plugins: woocommerce
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,7 @@ PayzCore is a non-custodial blockchain transaction monitoring service. When a cu
 * Automatic order completion for virtual/downloadable products
 * Blockchain explorer links in order notes (Tronscan, BSCScan, Etherscan, Polygonscan, Arbiscan)
 * WooCommerce HPOS (High-Performance Order Storage) compatible
+* Works with both the Checkout block (default since WooCommerce 8.3) and the classic checkout shortcode
 * Translatable with full i18n support
 
 **Static Wallet Mode**
@@ -166,6 +167,13 @@ Yes. The plugin fully supports WooCommerce High-Performance Order Storage.
 
 == Changelog ==
 
+= 1.0.3 =
+* New: Cart/Checkout Blocks support. PayzCore now appears in the block-based Checkout (network and stablecoin selectors included) and the plugin declares `cart_checkout_blocks` compatibility.
+* Fixed: Paying again for an order after its payment expired or was cancelled returned the old expired payment. A new attempt now uses a new `external_order_id` (`{order_id}-r{8 hex}`).
+* New: Late payments (funds that arrive after a payment expired, sent by PayzCore with `late_payment: true`) are applied to the order even if the customer already started a new payment attempt. Other events of a replaced attempt are ignored.
+* Fixed: Webhook lock is now atomic. A concurrent delivery gets HTTP 503 so PayzCore retries it, instead of HTTP 200 (which could drop the event if the first attempt failed).
+* Tested with WordPress 7.1 and WooCommerce 11.2.
+
 = 1.0.2 =
 * Security: SSRF protection on confirm endpoint with host validation
 * Security: Webhook idempotency with transient lock to prevent double-processing
@@ -203,6 +211,9 @@ Yes. The plugin fully supports WooCommerce High-Performance Order Storage.
 * HPOS (High-Performance Order Storage) compatible
 
 == Upgrade Notices ==
+
+= 1.0.3 =
+Adds Checkout block support and a more reliable webhook lock. No configuration changes needed.
 
 = 1.0.2 =
 Security hardening and WordPress.org compliance improvements. No configuration changes needed.

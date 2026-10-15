@@ -127,7 +127,8 @@ class PayzCore_Webhook {
 			);
 		}
 
-		$order = $this->find_order_by_payment_id( $payment_id, $external_order_id );
+		$metadata = ( isset( $payload['metadata'] ) && is_array( $payload['metadata'] ) ) ? $payload['metadata'] : array();
+		$order    = $this->find_order_by_payment_id( $payment_id, $external_order_id, $metadata );
 
 		if ( ! $order ) {
 			return new WP_REST_Response(
@@ -136,17 +137,33 @@ class PayzCore_Webhook {
 			);
 		}
 
-		// Transient lock to prevent concurrent processing of the same payment.
-		$lock_key = 'payzcore_wh_' . $payment_id;
-		if ( false === set_transient( $lock_key, 1, 60 ) ) {
-			// Another request is already processing this payment.
-			return new WP_REST_Response( array( 'ok' => true, 'message' => 'Processing.' ), 200 );
+		// Event for an earlier, replaced attempt of this order: only money events
+		// (a late payment) are applied; expired/cancelled/partial of an old attempt
+		// must not touch the order that now has a newer payment.
+		if ( $order->get_meta( '_payzcore_payment_id', true ) !== $payment_id
+			&& ! in_array( $payment_event, array( 'payment.completed', 'payment.overpaid' ), true ) ) {
+			return new WP_REST_Response( array( 'ok' => true, 'message' => 'Ignored: earlier payment attempt.' ), 200 );
+		}
+
+		// Lock to prevent concurrent processing of the same payment.
+		// add_option() fails when the row already exists, so it is atomic
+		// (set_transient() would silently overwrite). A lock older than 60 s
+		// is treated as stale (the previous request died mid-way).
+		$lock_key = 'payzcore_wh_lock_' . md5( $payment_id );
+		if ( ! add_option( $lock_key, time(), '', 'no' ) ) {
+			$locked_at = (int) get_option( $lock_key, 0 );
+			if ( $locked_at > 0 && ( time() - $locked_at ) < 60 ) {
+				// Another request is processing this payment. Answer 503 so
+				// PayzCore retries later instead of marking it delivered.
+				return new WP_REST_Response( array( 'error' => 'Processing, retry later.' ), 503 );
+			}
+			update_option( $lock_key, time(), 'no' );
 		}
 
 		// Idempotency: check if already processed (inside the lock).
 		$already_processed = $order->get_meta( '_payzcore_webhook_processed', true );
 		if ( 'yes' === $already_processed && in_array( $payment_event, array( 'payment.completed', 'payment.overpaid' ), true ) ) {
-			delete_transient( $lock_key );
+			delete_option( $lock_key );
 			return new WP_REST_Response(
 				array(
 					'ok'      => true,
@@ -158,7 +175,7 @@ class PayzCore_Webhook {
 
 		$this->process_event( $order, $payment_event, $paid_amount, $tx_hash, $network, $token, $payload );
 
-		delete_transient( $lock_key );
+		delete_option( $lock_key );
 
 		return new WP_REST_Response( array( 'ok' => true ), 200 );
 	}
@@ -177,6 +194,10 @@ class PayzCore_Webhook {
 	 */
 	private function process_event( $order, $event, $paid_amount, $tx_hash, $network, $token, $payload ) {
 		$explorer_url = $this->get_explorer_url( $tx_hash, $network );
+
+		if ( ! empty( $payload['late_payment'] ) ) {
+			$order->add_order_note( __( 'PayzCore: funds arrived after the payment window had expired (late payment). Check stock and fulfilment before shipping.', 'payzcore-for-woocommerce' ) );
+		}
 
 		// Resolve token name: prefer webhook payload, fallback to order meta, then default.
 		if ( empty( $token ) ) {
@@ -301,7 +322,7 @@ class PayzCore_Webhook {
 	 * @param string $external_order_id WooCommerce order ID sent as external_order_id.
 	 * @return WC_Order|false
 	 */
-	private function find_order_by_payment_id( $payment_id, $external_order_id = '' ) {
+	private function find_order_by_payment_id( $payment_id, $external_order_id = '', $metadata = array() ) {
 		$orders = wc_get_orders(
 			array(
 				'limit'      => 1,
@@ -314,9 +335,16 @@ class PayzCore_Webhook {
 			return $orders[0];
 		}
 
-		if ( ! empty( $external_order_id ) && is_numeric( $external_order_id ) ) {
-			$order = wc_get_order( absint( $external_order_id ) );
+		// external_order_id is "{order_id}" or "{order_id}-r{8 hex}" (new attempt after expiry).
+		if ( ! empty( $external_order_id ) && preg_match( '/^(\d+)(?:-r[0-9a-f]{8})?$/', $external_order_id, $m ) ) {
+			$order = wc_get_order( absint( $m[1] ) );
 			if ( $order && $order->get_meta( '_payzcore_payment_id', true ) === $payment_id ) {
+				return $order;
+			}
+			// An earlier attempt for this order (e.g. a late payment after the order
+			// got a new attempt): accept it only when the signed payload carries this
+			// order's key, which the plugin sent in the payment metadata.
+			if ( $order && ! empty( $metadata['order_key'] ) && hash_equals( $order->get_order_key(), (string) $metadata['order_key'] ) ) {
 				return $order;
 			}
 		}

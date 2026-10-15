@@ -3,17 +3,17 @@
  * Plugin Name: PayzCore for WooCommerce
  * Plugin URI: https://github.com/payzcore/woocommerce
  * Description: Accept stablecoin payments via PayzCore blockchain transaction monitoring. Non-custodial USDT/USDC monitoring on TRC20, BEP20, ERC20, Polygon, and Arbitrum networks.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: PayzCore
  * Author URI: https://payzcore.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: payzcore-for-woocommerce
  * Requires at least: 5.8
- * Tested up to: 6.9
+ * Tested up to: 7.1
  * Requires PHP: 7.4
  * WC requires at least: 7.0
- * WC tested up to: 10.5.3
+ * WC tested up to: 11.2
  * Requires Plugins: woocommerce
  *
  * @package PayzCore
@@ -21,7 +21,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PAYZCORE_VERSION', '1.0.2' );
+define( 'PAYZCORE_VERSION', '1.0.3' );
 define( 'PAYZCORE_PLUGIN_FILE', __FILE__ );
 define( 'PAYZCORE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PAYZCORE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -112,9 +112,33 @@ function payzcore_declare_hpos_compatibility() {
 			__FILE__,
 			true
 		);
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+			'cart_checkout_blocks',
+			__FILE__,
+			true
+		);
 	}
 }
 add_action( 'before_woocommerce_init', 'payzcore_declare_hpos_compatibility' );
+
+/**
+ * Register the PayzCore payment method for the Cart/Checkout blocks.
+ *
+ * @return void
+ */
+function payzcore_register_blocks_support() {
+	if ( ! class_exists( '\Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+		return;
+	}
+	require_once PAYZCORE_PLUGIN_DIR . 'includes/class-payzcore-blocks.php';
+	add_action(
+		'woocommerce_blocks_payment_method_type_registration',
+		function ( $payment_method_registry ) {
+			$payment_method_registry->register( new PayzCore_Blocks_Payment_Method() );
+		}
+	);
+}
+add_action( 'woocommerce_blocks_loaded', 'payzcore_register_blocks_support' );
 
 /**
  * Add settings link on the plugins page.

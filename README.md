@@ -42,7 +42,7 @@ PayzCore is a **non-custodial** monitoring service. It watches blockchain addres
 2. Enable **PayzCore (USDT/USDC)** and click **Manage**
 3. Enter your **API Key** and **Webhook Secret** from your PayzCore project
 4. Click **Test Connection** to verify — networks and tokens are auto-detected from your wallet
-5. Set your webhook URL in the PayzCore dashboard to: `https://yourstore.com/?wc-api=payzcore`
+5. Set your webhook URL in the PayzCore dashboard to: `https://yourstore.com/wp-json/payzcore/v1/webhook`
 
 ## Features
 
@@ -52,6 +52,7 @@ PayzCore is a **non-custodial** monitoring service. It watches blockchain addres
 - Countdown timer with automatic status polling
 - Webhook-based order status updates (HMAC-SHA256 signed)
 - WooCommerce HPOS compatible
+- Works with the Checkout block (WooCommerce default since 8.3) and the classic checkout
 - API-driven network/token configuration (no manual setup)
 
 ## Documentation
